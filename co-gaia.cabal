@@ -1,0 +1,86 @@
+cabal-version:   3.6
+name:            co-gaia
+version:         0.0.0.1
+synopsis:
+description:
+homepage:        https://github.com/PPKFS/co-gaia
+bug-reports:     https://github.com/PPKFS/co-gaia/issues
+license:         MIT
+author:          Avery
+maintainer:      Avery <thecommunistduck@hotmail.co.uk>
+copyright:       2023 Avery
+category:        Game Development
+build-type:      Simple
+tested-with: GHC == 9.2.6
+
+source-repository head
+  type:     git
+  location: https://github.com/PPKFS/co-gaia.git
+
+common common-options
+  build-depends:
+      base
+    , solitude
+    , breadcrumbs
+    , containers
+    , effectful-core
+    , effectful-plugin
+    , finite-typelits
+    , effectful-th
+    , linear
+    , optics-extra
+    , template-haskell
+    , vector-sized
+    , text
+    , mtl
+    , sdl2
+    , sdl2-image
+
+  ghc-options:
+    -Wall -Wcompat -Widentities -Wredundant-constraints
+    -fhide-source-paths -Wno-unused-top-binds
+    -Wmissing-deriving-strategies -O2 -flate-specialise
+    -fspecialise-aggressively -fprint-potential-instances
+    -fno-warn-unused-do-bind -haddock -fwrite-ide-info
+    -fplugin=Effectful.Plugin -Wunused-packages
+    -fprof-auto
+    "-with-rtsopts=-N -p -s -hc -i0.1"
+  default-language: GHC2021
+  default-extensions:
+    OverloadedLabels
+    DuplicateRecordFields
+    DerivingStrategies
+    TypeFamilies
+    OverloadedStrings
+    NoImplicitPrelude
+    QuasiQuotes
+    LambdaCase
+    DataKinds
+    MultiWayIf
+
+library
+  import:          common-options
+  hs-source-dirs:  src
+  exposed-modules:
+    Gaia.Hex
+
+test-suite co-gaia-test
+  import:             common-options
+  type:               exitcode-stdio-1.0
+  hs-source-dirs:     test
+  main-is:            Spec.hs
+  build-depends:
+    co-gaia
+    , hspec
+  ghc-options:        -threaded -rtsopts -with-rtsopts=-N
+  default-extensions:
+    QuasiQuotes
+    TemplateHaskell
+    NoImplicitPrelude
+
+executable co-gaia-app
+  import: common-options
+  hs-source-dirs: bin
+  main-is: Main.hs
+  build-depends:
+    co-gaia
