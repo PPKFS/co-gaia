@@ -31,6 +31,7 @@ common common-options
     , optics-extra
     , template-haskell
     , vector-sized
+    , typenums
     , text
     , mtl
     , sdl2
@@ -63,6 +64,7 @@ library
   hs-source-dirs:  src
   exposed-modules:
     Gaia.Hex
+    Gaia.Chunk
 
 test-suite co-gaia-test
   import:             common-options

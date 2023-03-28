@@ -13,6 +13,13 @@ data Hex coord t = Hex
   , hexData :: t
   } deriving stock (Show)
 
+byCoord ::
+  (coord -> coord2)
+  -> (coord -> coord2)
+  -> Hex coord t
+  -> Hex coord2 t
+byCoord fq fr (Hex (V2 q r) t) = Hex (V2 (fq q) (fr r)) t
+
 instance Eq coord => Eq (Hex coord t) where
   (==) t1 t2 = coords t1 == coords t2
 

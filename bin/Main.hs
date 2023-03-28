@@ -14,6 +14,8 @@ import Gaia.Hex
 import Linear
 import qualified Data.Vector.Sized as VSU
 import Data.Finite (finite)
+import Gaia.Chunk
+import Data.List ((!!))
 
 -- NOTE: can throw
 withSDL :: (MonadIO m) => m a -> m ()
@@ -97,7 +99,7 @@ centerWithin (SDL.Rectangle _ iz) (SDL.Rectangle (SDL.P op) oz)
   where
     p = SDL.P $ op + (oz - iz) / 2
 
-data Colour = White | Red | Blue | Green | Yellow
+data Colour = White | Red | Blue | Green | Yellow deriving stock (Show, Enum)
 
 
 type HasRenderer m = ( MonadIO m, MonadReader SDL.Renderer m)
@@ -154,9 +156,16 @@ fromV2 (V2 x y) = (fromIntegral x, fromIntegral y)
 draw :: (HasRenderer m) => m ()
 draw = do
   clearScreen
-  let h = map (\h' -> hexScreenPoints h' `VSU.snoc` (hexScreenPoints h' `VSU.index` 0)) makeHexes
-  setColour Red    >> mapM_ (\h' -> mapM_
-    (\p -> drawLine (round <$> VSU.index h' (finite p)) (round <$> VSU.index h' (finite (p+1)))) [0..5]) h
+  Solitude.traceShow ((\(Chunk hs _ _) -> (VSU.length hs, VSU.map coords hs)) $ makeChunks !! 1) pass
+  let
+    h :: [(Colour, [VSU.Vector 7 (V2 Double)])]
+    h = map (\(Chunk l c _) -> (c, toList $ VSU.map (\h' -> hexScreenPoints h' `VSU.snoc` (hexScreenPoints h' `VSU.index` 0))  l) ) makeChunks
+  mapM_ (\(c, h') -> do
+    setColour c
+    mapM_
+      (\ha -> mapM_ (\p -> drawLine (round <$> VSU.index ha (finite p)) (round <$> VSU.index ha (finite (p+1)))) [0..5])
+        h'
+      ) h
 
   ask >>= SDL.present
 
@@ -168,6 +177,12 @@ whileM act = do
 makeHexes :: [Hex Int ()]
 makeHexes = mconcat $ map (\q -> map (\r -> Hex (V2 q r) ()) [(-100)..100] ) [(-100)..100]
 
+makeChunks :: [HexChunk 4 Colour]
+makeChunks = [makeChunk (const ()) (mkCol x) (V2 ((x * x * 4 + 3)) ((y * y * 4 + 3))) | x <- [-10..10], y <- [-10..10]]
+
+mkCol :: Int -> Colour
+mkCol = toEnum . abs . flip mod 5
+
 main :: IO ()
 main = withSDL $ do
   setHintQuality
@@ -177,4 +192,4 @@ main = withSDL $ do
       runReaderT (setColour White) r
       runReaderT draw r
 
-      --whileM $ not . hasQuitEvent <$> SDL.pollEvents
+      whileM $ not . hasQuitEvent <$> SDL.pollEvents
