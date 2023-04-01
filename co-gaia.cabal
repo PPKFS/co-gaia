@@ -26,6 +26,7 @@ common common-options
     , effectful-core
     , effectful-plugin
     , finite-typelits
+    , exceptions
     , effectful-th
     , linear
     , optics-extra
@@ -84,5 +85,7 @@ executable co-gaia-app
   import: common-options
   hs-source-dirs: bin
   main-is: Main.hs
+  other-modules:
+    Gaia.SDL
   build-depends:
     co-gaia

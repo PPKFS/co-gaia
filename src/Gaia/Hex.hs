@@ -1,6 +1,7 @@
 module Gaia.Hex
   ( Hex(..)
   , hexScreenPoints
+  , byCoord
   ) where
 
 import Solitude
@@ -121,10 +122,9 @@ hexToScreen ::
   => Real coord3
   => V2 coord
   -> V2 coord2
-  -> Hex coord3 t
+  -> V2 coord3
   -> V2 Double
-hexToScreen size origin (Hex v _) = let f = hexScreenMatrix !* (toDouble <$> v) in
-  (toDouble <$> origin) ^+^ ((toDouble <$> size) * f)
+hexToScreen size origin v = (toDouble <$> origin) ^+^ ((toDouble <$> size) * (hexScreenMatrix !* (toDouble <$> v)))
 
 screenToHex ::
   Real coord
@@ -141,11 +141,11 @@ screenToHex size offset (Hex v _) = screenHexMatrix !*
 
 hexScreenPoints ::
   Real coord
-  => Hex coord t
+  => V2 Double
+  -> V2 Double
+  -> Hex coord t
   -> VSU.Vector 6 (V2 Double)
-hexScreenPoints (Hex c _) = VSU.generate (\i -> screenCentre ^+^ hexCornerOffset i)
-  where
-    screenCentre = hexToScreen @Double @Double (V2 10 10) (V2 0 0) (Hex c ())
+hexScreenPoints scale origin (Hex c _) = VSU.generate ((^+^) (hexToScreen scale origin c) . hexCornerOffset)
 
 hexCornerOffset :: Finite 6 -> V2 Double
 hexCornerOffset i = V2 (10 * cos angle') (10 * sin angle')

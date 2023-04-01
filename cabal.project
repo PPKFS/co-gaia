@@ -6,6 +6,10 @@ source-repository-package
   type: git
   location: https://github.com/ppkfs/solitude.git
 
+source-repository-package
+  type: git
+  location: https://github.com/haskell-game/sdl2.git
+
 packages:
   co-gaia.cabal
 
